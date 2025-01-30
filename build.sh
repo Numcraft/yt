@@ -39,7 +39,7 @@ APP version: $APP_VERSION
 EOF
 )
 
-last_release_notes=$(gh release view --json body | jq -r '.body')
+last_release_notes=$(gh release view --json body | jq -r '.body' || true)
 
 if [[ "$release_notes" == "$last_release_notes" ]]; then
   echo "Release for this version already exist. Exiting..."
