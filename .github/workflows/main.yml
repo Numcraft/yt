@@ -19,7 +19,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y openjdk-17-jre-headless python3 python3-bs4 python3-requests curl jq
+          sudo apt-get install -y openjdk-17-jre-headless python3 python3-bs4 python3-requests curl jq apksigner
 
       - name: Build and release APK
         env:
