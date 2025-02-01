@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-APP_ID=com.google.android.youtube
-ARCH=arm64-v8a
+APP_ID="com.google.android.youtube"
+ARCH="arm64-v8a"
+SIGNATURE="24bb24c05e47e0aefa68a58a766179d9b613a600"
 
 CLI_VERSION=$(curl -s https://api.github.com/repos/ReVanced/revanced-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
 PATCHES_VERSION=$(curl -s https://api.github.com/repos/ReVanced/revanced-patches/releases/latest | jq -r '.tag_name' | sed 's/^v//')
@@ -21,15 +22,24 @@ PATCHED_APK_PATH="$APP_ID-$APP_VERSION-patched.apk"
 echo "Downloading $APP_ID version $APP_VERSION..."
 ./apkdl.py "$APP_ID" "$APP_VERSION" "$ARCH" "$APK_PATH"
 
+echo "Verifying APK signature..."
+if apksigner verify --print-certs "$APK_PATH" | grep -Fx "Signer #1 certificate SHA-1 digest: $SIGNATURE"; then
+  echo "OK"
+else
+  echo "Failed to verify APK signature, expected $SIGNATURE"
+  echo "Exiting..."
+  exit 1;
+fi
+
 echo "Patching and signing APK..."
 echo "$KEYSTORE" | base64 -d > revanced.keystore
 java -jar cli.jar patch \
-            --patches patches.rvp \
-            --keystore revanced.keystore \
-            --keystore-password $KEYSTORE_PASSWORD \
-            --keystore-entry-password $KEYSTORE_PASSWORD \
-            --out "$PATCHED_APK_PATH" \
-            "$APK_PATH"
+  --patches patches.rvp \
+  --keystore revanced.keystore \
+  --keystore-password $KEYSTORE_PASSWORD \
+  --keystore-entry-password $KEYSTORE_PASSWORD \
+  --out "$PATCHED_APK_PATH" \
+  "$APK_PATH"
 
 
 release_notes=$(cat <<-EOF
