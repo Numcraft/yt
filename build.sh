@@ -4,7 +4,7 @@ set -euo pipefail
 
 APP_ID="com.google.android.youtube"
 ARCH="arm64-v8a"
-SIGNATURE="24bb24c05e47e0aefa68a58a766179d9b613a600"
+SIGNATURE="3d7a1223019aa39d9ea0e3436ab7c0896bfb4fb679f4de5fe7c23f326c8f994a"
 
 CLI_VERSION=$(curl -s https://api.github.com/repos/ReVanced/revanced-cli/releases/latest | jq -r '.tag_name' | sed 's/^v//')
 PATCHES_VERSION=$(curl -s https://api.github.com/repos/ReVanced/revanced-patches/releases/latest | jq -r '.tag_name' | sed 's/^v//')
@@ -23,12 +23,12 @@ echo "Downloading $APP_ID version $APP_VERSION..."
 ./apkdl.py "$APP_ID" "$APP_VERSION" "$ARCH" "$APK_PATH"
 
 echo "Verifying APK signature..."
-if apksigner verify --print-certs "$APK_PATH" | grep -Fx "Signer #1 certificate SHA-1 digest: $SIGNATURE"; then
+if apksigner verify --print-certs "$APK_PATH" | grep -Fx "Signer #1 certificate SHA-256 digest: $SIGNATURE"; then
   echo "OK"
 else
   echo "Failed to verify APK signature, expected $SIGNATURE"
   echo "Exiting..."
-  exit 1;
+  exit 1
 fi
 
 echo "Patching and signing APK..."
